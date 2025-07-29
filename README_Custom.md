@@ -1,4 +1,3 @@
-
 # Recent Updates & Important Notes
 
 We are constantly working to improve the Ultralytics ecosystem. This document highlights recent enhancements and provides important notes for our users and contributors.

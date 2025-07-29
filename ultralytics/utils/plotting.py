@@ -678,8 +678,8 @@ def save_one_box(
 
 def save_one_mask_crop(mask, img, file, padding=10):
     """
-    Saves a cropped image based on a mask, with a transparent background, and saves it as a PNG file.
-    The padding is added around the mask's bounding box.
+    Saves a cropped image based on a mask, with a transparent background, and saves it as a PNG file. The padding is
+    added around the mask's bounding box.
 
     Args:
         mask (numpy.ndarray): A 2D binary mask of the object.
