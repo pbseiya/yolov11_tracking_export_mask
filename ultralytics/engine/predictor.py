@@ -468,6 +468,9 @@ class BasePredictor:
                             # Save all masks for a tracked object, with frame number in filename
                             filename = f"{self.txt_path.stem}_{track_id}.png"
                     else:
+                        # If in tracking mode, don't save masks until a track ID is assigned
+                        if self.args.mode == "track":
+                            continue
                         # Default behavior for predict mode (not tracking)
                         filename = f"{self.txt_path.stem}_{d}.png"
 
