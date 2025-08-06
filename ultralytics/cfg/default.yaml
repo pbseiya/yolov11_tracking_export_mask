@@ -71,8 +71,9 @@ save_frames: False # (bool) save predicted individual video frames
 save_txt: False # (bool) save results as .txt file
 save_conf: False # (bool) save results with confidence scores
 save_crop: False # (bool) save cropped images with results
-save_mask: False # (bool) save cropped images with masks
-save_one_mask_per_track: True # (bool) save only the first mask crop for each tracked object
+save_first_mask: False # (bool) save only the first mask crop for each tracked object
+save_best_mask: False # (bool) save the highest confidence mask for each track ID over the video
+save_one_mask_per_track: False # (bool) save all detected masks in each frame
 show_labels: True # (bool) show prediction labels, i.e. 'person'
 show_conf: True # (bool) show prediction confidence, i.e. '0.99'
 show_boxes: True # (bool) show prediction boxes

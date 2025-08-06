@@ -273,6 +273,7 @@ class BasePredictor:
         ):  # videos
             LOGGER.warning(STREAM_WARNING)
         self.saved_track_ids = set()  # for --save-mask in track mode
+        self.best_conf_per_track = {}  # for --save-best-mask in track mode
         self.vid_writer = {}
 
     @smart_inference_mode()
@@ -450,38 +451,62 @@ class BasePredictor:
             result.save_txt(f"{self.txt_path}.txt", save_conf=self.args.save_conf)
         if self.args.save_crop:
             result.save_crop(save_dir=self.save_dir / "crops", file_name=self.txt_path.stem)
-        if self.args.save_mask:
-            if result.masks is not None:
-                # Scale masks to original image size and convert to CPU. Note: result.masks.data is (N, H, W)
-                scaled_masks = ops.scale_masks(result.masks.data.unsqueeze(1), result.orig_shape).squeeze(1).cpu()
-                is_tracking = result.boxes and result.boxes.id is not None
 
+        # Logic for saving masks based on different arguments
+        if result.masks is not None:
+            scaled_masks = ops.scale_masks(result.masks.data.unsqueeze(1), result.orig_shape).squeeze(1).cpu()
+            is_tracking = result.boxes and result.boxes.id is not None
+
+            if self.args.save_best_mask:
+                if not is_tracking:
+                    LOGGER.warning("WARNING ⚠️ 'save_best_mask=True' is only available in tracking mode.")
+                else:
+                    for d, mask in enumerate(scaled_masks):
+                        track_id = int(result.boxes.id[d])
+                        conf = float(result.boxes.conf[d])
+                        if conf > self.best_conf_per_track.get(track_id, 0.0):
+                            self.best_conf_per_track[track_id] = conf
+                            box = result.boxes[d]
+                            class_name = result.names[int(box.cls)]
+                            filename = f"{track_id}_best.png"
+                            save_path = self.save_dir / "crops-mask" / class_name / filename
+                            save_path.parent.mkdir(parents=True, exist_ok=True)
+                            save_one_mask_crop(mask.numpy(), result.orig_img, file=save_path)
+
+            elif self.args.save_first_mask:
+                if not is_tracking:
+                    LOGGER.warning("WARNING ⚠️ 'save_first_mask=True' is only available in tracking mode.")
+                else:
+                    for d, mask in enumerate(scaled_masks):
+                        track_id = int(result.boxes.id[d])
+                        if track_id in self.saved_track_ids:
+                            continue  # Skip if this track_id has already been saved
+
+                        # Add new track_id to the set and save the mask
+                        self.saved_track_ids.add(track_id)
+                        class_name = result.names[int(result.boxes[d].cls)]
+                        filename = f"{p.stem}_{track_id}.png"
+                        save_path = self.save_dir / "crops-mask" / class_name / filename
+                        save_path.parent.mkdir(parents=True, exist_ok=True)
+                        save_one_mask_crop(mask.numpy(), result.orig_img, file=save_path)
+
+            elif self.args.save_one_mask_per_track:
+                # Save all detected masks in the frame
                 for d, mask in enumerate(scaled_masks):
                     if is_tracking:
                         track_id = int(result.boxes.id[d])
-                        if self.args.save_one_mask_per_track:
-                            if track_id in self.saved_track_ids:
-                                continue  # Skip if already saved
-                            self.saved_track_ids.add(track_id)
-                            filename = f"{p.stem}_{track_id}.png"
-                        else:
-                            # Save all masks for a tracked object, with frame number in filename
-                            filename = f"{self.txt_path.stem}_{track_id}.png"
+                        filename = f"{self.txt_path.stem}_{track_id}.png"
                     else:
-                        # If in tracking mode, don't save masks until a track ID is assigned
                         if self.args.mode == "track":
-                            continue
-                        # Default behavior for predict mode (not tracking)
+                            continue  # In track mode, only save if there is a track ID
                         filename = f"{self.txt_path.stem}_{d}.png"
 
-                    # Define the save path for the masked crop, ensuring it's a .png
                     save_path = self.save_dir / "crops-mask" / result.names[int(result.boxes[d].cls)] / filename
-
-                    # Create the directory if it doesn't exist
                     save_path.parent.mkdir(parents=True, exist_ok=True)
+                    save_one_mask_crop(mask.numpy(), result.orig_img, file=save_path)
 
-                    # Call the new helper function to save the crop with a transparent background
-                    save_one_mask_crop(mask.numpy(), result.orig_img, file=save_path)  # no need for .cpu()
+ 
+
         if self.args.show:
             self.show(str(p))
         if self.args.save:
