@@ -505,8 +505,6 @@ class BasePredictor:
                     save_path.parent.mkdir(parents=True, exist_ok=True)
                     save_one_mask_crop(mask.numpy(), result.orig_img, file=save_path)
 
- 
-
         if self.args.show:
             self.show(str(p))
         if self.args.save:
@@ -531,7 +529,9 @@ class BasePredictor:
             if save_path not in self.vid_writer:  # new video
                 if self.args.save_frames:
                     Path(frames_path).mkdir(parents=True, exist_ok=True)
-                suffix, fourcc = (".mp4", "avc1") if MACOS or LINUX else (".avi", "WMV2") if WINDOWS else (".avi", "MJPG")
+                suffix, fourcc = (
+                    (".mp4", "avc1") if MACOS or LINUX else (".avi", "WMV2") if WINDOWS else (".avi", "MJPG")
+                )
                 self.vid_writer[save_path] = cv2.VideoWriter(
                     filename=str(Path(save_path).with_suffix(suffix)),
                     fourcc=cv2.VideoWriter_fourcc(*fourcc),

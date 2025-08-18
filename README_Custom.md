@@ -1,4 +1,3 @@
-
 # Recent Updates & Important Notes
 
 We are constantly working to improve the Ultralytics ecosystem. This document highlights recent enhancements and provides important notes for our users and contributors.
@@ -9,13 +8,12 @@ We have implemented significant improvements to the mask-saving functionality, o
 
 ### Mask Saving Arguments
 
-*   **`save_best_mask=True`**:
-    *   **_Save the best mask for each ID_**: Saves a cropped image of the mask with the highest confidence for each track ID over the entire video.
-*   **`save_first_mask=True`**:
-    *   **_Save the first mask for each ID_**: Saves a cropped image of the mask the first time a tracked object appears and does not save it again.
-*   **`save_one_mask_per_track=True`**:
-    *   **_Save all masks_**: Saves cropped images of all detected masks in every frame (ideal for debugging).
-
+- **`save_best_mask=True`**:
+  - **_Save the best mask for each ID_**: Saves a cropped image of the mask with the highest confidence for each track ID over the entire video.
+- **`save_first_mask=True`**:
+  - **_Save the first mask for each ID_**: Saves a cropped image of the mask the first time a tracked object appears and does not save it again.
+- **`save_one_mask_per_track=True`**:
+  - **_Save all masks_**: Saves cropped images of all detected masks in every frame (ideal for debugging).
 
 This feature is particularly useful for workflows that require isolated object images for further analysis, dataset creation, or other downstream tasks. The saved images are in PNG format to preserve transparency.
 
