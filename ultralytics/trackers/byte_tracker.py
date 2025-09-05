@@ -302,6 +302,11 @@ class BYTETracker:
         lost_stracks = []
         removed_stracks = []
 
+        if results.data.shape[0] > 0:
+            # Filter out boxes with zero width or height
+            valid_indices = (results.xywh[:, 2] > 0) & (results.xywh[:, 3] > 0)
+            results = results[valid_indices]
+
         scores = results.conf
         bboxes = results.xywhr if hasattr(results, "xywhr") else results.xywh
         # Add index
