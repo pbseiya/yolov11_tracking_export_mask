@@ -468,7 +468,7 @@ class BasePredictor:
                             self.best_conf_per_track[track_id] = conf
                             box = result.boxes[d]
                             class_name = result.names[int(box.cls)]
-                            filename = f"{track_id}_best.png"
+                            filename = f"{track_id:06d}_best.png"
                             save_path = self.save_dir / "crops-mask" / class_name / filename
                             save_path.parent.mkdir(parents=True, exist_ok=True)
                             save_one_mask_crop(mask.numpy(), result.orig_img, file=save_path)
@@ -485,7 +485,7 @@ class BasePredictor:
                         # Add new track_id to the set and save the mask
                         self.saved_track_ids.add(track_id)
                         class_name = result.names[int(result.boxes[d].cls)]
-                        filename = f"{p.stem}_{track_id}.png"
+                        filename = f"{p.stem}_{track_id:06d}.png"
                         save_path = self.save_dir / "crops-mask" / class_name / filename
                         save_path.parent.mkdir(parents=True, exist_ok=True)
                         save_one_mask_crop(mask.numpy(), result.orig_img, file=save_path)
@@ -495,7 +495,7 @@ class BasePredictor:
                 for d, mask in enumerate(scaled_masks):
                     if is_tracking:
                         track_id = int(result.boxes.id[d])
-                        filename = f"{self.txt_path.stem}_{track_id}.png"
+                        filename = f"{self.txt_path.stem}_{track_id:06d}.png"
                     else:
                         if self.args.mode == "track":
                             continue  # In track mode, only save if there is a track ID
