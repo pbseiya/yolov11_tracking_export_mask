@@ -36,7 +36,7 @@ import platform
 import re
 import threading
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import cv2
 import numpy as np
@@ -110,8 +110,8 @@ class BasePredictor:
     def __init__(
         self,
         cfg=DEFAULT_CFG,
-        overrides: Optional[Dict[str, Any]] = None,
-        _callbacks: Optional[Dict[str, List[callable]]] = None,
+        overrides: Optional[dict[str, Any]] = None,
+        _callbacks: Optional[dict[str, list[callable]]] = None,
     ):
         """
         Initialize the BasePredictor class.
@@ -148,7 +148,7 @@ class BasePredictor:
         self._lock = threading.Lock()  # for automatic thread-safe inference
         callbacks.add_integration_callbacks(self)
 
-    def preprocess(self, im: Union[torch.Tensor, List[np.ndarray]]) -> torch.Tensor:
+    def preprocess(self, im: Union[torch.Tensor, list[np.ndarray]]) -> torch.Tensor:
         """
         Prepare input image before inference.
 
@@ -182,7 +182,7 @@ class BasePredictor:
         )
         return self.model(im, augment=self.args.augment, visualize=visualize, embed=self.args.embed, *args, **kwargs)
 
-    def pre_transform(self, im: List[np.ndarray]) -> List[np.ndarray]:
+    def pre_transform(self, im: list[np.ndarray]) -> list[np.ndarray]:
         """
         Pre-transform input image before inference.
 
@@ -407,7 +407,7 @@ class BasePredictor:
             self.args.imgsz = self.model.imgsz  # reuse imgsz from export metadata
         self.model.eval()
 
-    def write_results(self, i: int, p: Path, im: torch.Tensor, s: List[str]) -> str:
+    def write_results(self, i: int, p: Path, im: torch.Tensor, s: list[str]) -> str:
         """
         Write inference results to a file or directory.
 
@@ -505,8 +505,6 @@ class BasePredictor:
                     save_path.parent.mkdir(parents=True, exist_ok=True)
                     save_one_mask_crop(mask.numpy(), result.orig_img, file=save_path)
 
- 
-
         if self.args.show:
             self.show(str(p))
         if self.args.save:
@@ -531,7 +529,9 @@ class BasePredictor:
             if save_path not in self.vid_writer:  # new video
                 if self.args.save_frames:
                     Path(frames_path).mkdir(parents=True, exist_ok=True)
-                suffix, fourcc = (".mp4", "avc1") if MACOS or LINUX else (".avi", "WMV2") if WINDOWS else (".avi", "MJPG")
+                suffix, fourcc = (
+                    (".mp4", "avc1") if MACOS or LINUX else (".avi", "WMV2") if WINDOWS else (".avi", "MJPG")
+                )
                 self.vid_writer[save_path] = cv2.VideoWriter(
                     filename=str(Path(save_path).with_suffix(suffix)),
                     fourcc=cv2.VideoWriter_fourcc(*fourcc),
